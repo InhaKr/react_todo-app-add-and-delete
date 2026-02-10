@@ -141,7 +141,13 @@ export const App: React.FC = () => {
   const clearCompleted = async () => {
     const completedTodos = todos.filter(t => t.completed);
 
-    if (completedTodos.length === 0) return; // если нет завершённых — выходим
+    if (completedTodos.length === 0) {
+      return;
+    }
+
+    const ids = completedTodos.map(t => t.id);
+
+    setLoadingIds(prev => [...prev, ...ids]);
 
     try {
       const results = await Promise.allSettled(
@@ -158,6 +164,7 @@ export const App: React.FC = () => {
         showError(ErrorMessage.DELETE);
       }
     } finally {
+      setLoadingIds(prev => prev.filter(id => !ids.includes(id)));
       inputRef.current?.focus(); // используем корректный ref
     }
   };
